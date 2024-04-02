@@ -1,0 +1,31 @@
+
+
+
+Tiene que tener:
+  - 3 niveles
+  - Un jefe al final
+  - Un menu con:
+    - Jugar
+    - Puntajes altos
+    - Settings de audio
+    - Elegir niveles
+    - About
+    - Salir
+  - Un json para:
+    - Configuracion de juego
+    - Menu
+    - Mapa
+    
+En juego debe haber:
+  - Heroe
+    - Sprite
+      - Correr
+      - Saltar
+      - Disparar
+      - Recibir disparo
+      - Morir
+    - Vida
+    - Ammo
+  - Enemigo
+    - Sprite
+      - Mover
