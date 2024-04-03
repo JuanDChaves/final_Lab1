@@ -1,0 +1,9 @@
+# CONSTANTS
+HERO_HEIGHT = 60
+HERO_WIDTH = 40
+SPEED = 8
+GRAVITY = 6
+
+# VARIABLES
+hero_x = 300
+hero_y = 600

@@ -1,32 +1,22 @@
 import pygame
+from variables import *
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 700))
 clock = pygame.time.Clock()
 running = True
 
-# To do
-# Create a character Rectangle and flip
-# Capture and store keyboard input
-# Move the rectange
-# Define gravity
-
 jump = False
 move_right = False
 move_left = False
 shoot = False
-
-hero_height = 60
-hero_width = 40
-hero_inicial_x = 300
-hero_inicial_y = 600
-
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
+        # User input handling
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 jump = True
@@ -49,17 +39,30 @@ while running:
             if event.key == pygame.K_SPACE:
                 shoot = False
         
-
+    # Draw Background
     screen.fill("black")
 
-    if move_left:
-        hero_inicial_x =- 0.25
-    if move_right:
-        hero_inicial_x =+ 0.25
-    if jump:
-        hero_inicial_y =+ 0.25
+    # Draw map
+    platform_rect = pygame.draw.rect(screen, "white", ((900, 400),(200, 30)))
 
-    pygame.draw.rect(screen, "white", ((hero_inicial_x, hero_inicial_y), (hero_width, hero_height)))
+
+    # Define hero's movement
+    if move_left:
+        hero_x -= SPEED
+    if move_right:
+        hero_x += SPEED
+    if jump:
+        hero_y -= SPEED * 2
+
+    hero_y += GRAVITY
+
+    # Draw Hero
+    hero_rect = pygame.draw.rect(screen, "white", ((hero_x, hero_y), (HERO_WIDTH, HERO_HEIGHT)))
+
+    # Define co
+    if hero_rect.colliderect(platform_rect):
+
+        print(f"collision {hero_rect.x, hero_rect.y}")
 
     pygame.display.update()
 
