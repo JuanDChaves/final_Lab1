@@ -1,8 +1,9 @@
 import pygame
 from variables import *
+from maps import *
 
 pygame.init()
-screen = pygame.display.set_mode((1280, 700))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 running = True
 
@@ -10,6 +11,9 @@ jump = False
 move_right = False
 move_left = False
 shoot = False
+
+cur_hero_x = hero_x
+cur_hero_y = hero_y
 
 while running:
     for event in pygame.event.get():
@@ -43,27 +47,28 @@ while running:
     screen.fill("black")
 
     # Draw map
-    platform_rect = pygame.draw.rect(screen, "white", ((900, 400),(200, 30)))
-
+    platform_rect = pygame.draw.rect(screen, "white", ((600, 300),(200, 30)))
 
     # Define hero's movement
+    # Write a method that will return current (x,y)
     if move_left:
-        hero_x -= SPEED
+        cur_hero_x -= SPEED
     if move_right:
-        hero_x += SPEED
+        cur_hero_x += SPEED
     if jump:
-        hero_y -= SPEED * 2
+        cur_hero_y -= SPEED * 2
 
-    hero_y += GRAVITY
+    if falling:
+        cur_hero_y += GRAVITY
 
     # Draw Hero
-    hero_rect = pygame.draw.rect(screen, "white", ((hero_x, hero_y), (HERO_WIDTH, HERO_HEIGHT)))
+    hero_rect = pygame.draw.rect(screen, "white", ((cur_hero_x, cur_hero_y), (HERO_WIDTH, HERO_HEIGHT)))
 
-    # Define co
-    if hero_rect.colliderect(platform_rect):
-
-        print(f"collision {hero_rect.x, hero_rect.y}")
-
+    # Define collisions
+    if hero_rect.colliderect((600, 300),(200, 30)):
+        falling = False  
+    else:
+        falling = True
     pygame.display.update()
 
     clock.tick(60)
