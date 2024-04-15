@@ -4,6 +4,7 @@ from maps import *
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Final - Juan Chaves")
 clock = pygame.time.Clock()
 running = True
 
@@ -12,8 +13,17 @@ move_right = False
 move_left = False
 shoot = False
 
-cur_hero_x = hero_x
-cur_hero_y = hero_y
+font = pygame.font.SysFont("Futura", 30)
+
+cur_t800_x = t800_x
+cur_t800_y = t800_y
+
+class Character():
+    def __init__(self, x, y) -> None:
+        self.position = (x,y)
+
+    def draw(position):
+        pygame.draw.rect(screen, "red", ((400, 400), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
 
 while running:
     for event in pygame.event.get():
@@ -44,31 +54,41 @@ while running:
                 shoot = False
         
     # Draw Background
+    # ###### THIS WILL BE REPLACED BY A BACKGROUND ########    
     screen.fill("black")
-
+    
     # Draw map
-    platform_rect = pygame.draw.rect(screen, "white", ((600, 300),(200, 30)))
+    # ###### THIS WILL BE REPLACED BY A MAP ########
+    platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
 
     # Define hero's movement
     # Write a method that will return current (x,y)
     if move_left:
-        cur_hero_x -= SPEED
+        cur_t800_x -= SPEED
     if move_right:
-        cur_hero_x += SPEED
+        cur_t800_x += SPEED
     if jump:
-        cur_hero_y -= SPEED * 2
+        cur_t800_y -= SPEED
 
     if falling:
-        cur_hero_y += GRAVITY
+        cur_t800_y += GRAVITY
 
     # Draw Hero
-    hero_rect = pygame.draw.rect(screen, "white", ((cur_hero_x, cur_hero_y), (HERO_WIDTH, HERO_HEIGHT)))
+    hero_rect = pygame.draw.rect(screen, "blue", ((cur_t800_x, cur_t800_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
+
+    t800 = Character(400,400)
+    t800.draw()
 
     # Define collisions
-    if hero_rect.colliderect((600, 300),(200, 30)):
+    if hero_rect.colliderect((0, 540),(600, 30)):
         falling = False  
     else:
         falling = True
+
+    position_text = f"x: {cur_t800_x} | y: {cur_t800_y}"    
+    text = font.render(position_text, True, "white")
+    screen.blit(text, (10,40))
+    
     pygame.display.update()
 
     clock.tick(60)
