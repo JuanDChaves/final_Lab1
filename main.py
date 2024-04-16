@@ -8,24 +8,63 @@ pygame.display.set_caption("Final - Juan Chaves")
 clock = pygame.time.Clock()
 running = True
 
-jump = False
-move_right = False
-move_left = False
-shoot = False
-
 font = pygame.font.SysFont("Futura", 30)
-
-cur_t800_x = t800_x
-cur_t800_y = t800_y
 
 class Character():
     def __init__(self, x, y) -> None:
+        self.x = x
+        self.y = y
         self.position = (x,y)
+        self.falling = True
+        self.jump = False
+        self.move_right = False
+        self.move_left = False
+        self.shoot = False
 
-    def draw(position):
-        pygame.draw.rect(screen, "red", ((400, 400), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
+    def update(self):
+        self.move()
+        self.draw()
+
+    def move(self):
+        delta_x = 0
+        delta_y = 0
+
+        if self.move_left:
+            delta_x -= SPEED
+        if self.move_right:
+            delta_x += SPEED
+        if self.jump:
+            delta_y -= SPEED
+
+
+        if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+            self.falling = False  
+        else:
+            self.falling = True
+        
+        if self.falling:
+            delta_y += GRAVITY
+
+        self.x += delta_x
+        self.y += delta_y
+
+    def draw(self):
+        pygame.draw.rect(screen, "red", ((self.x, self.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
+
+t800 = Character(t800_x, t800_y)
 
 while running:
+        
+    # Draw Background
+    screen.fill("black")
+    
+    # Draw map
+    platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
+
+    position_text = f"x: {t800.x} | y: {t800.y}"    
+    text = font.render(position_text, True, "white")
+    screen.blit(text, (10,40))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -33,62 +72,27 @@ while running:
         # User input handling
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                jump = True
+                t800.jump = True
             if event.key == pygame.K_RIGHT:
-                move_right = True
+                t800.move_right = True
             if event.key == pygame.K_LEFT:
-                move_left = True
+                t800.move_left = True
 
             if event.key == pygame.K_SPACE:
                 shoot = True
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
-                jump = False
+                t800.jump = False
             if event.key == pygame.K_RIGHT:
-                move_right = False
+                t800.move_right = False
             if event.key == pygame.K_LEFT:
-                move_left = False
+                t800.move_left = False
 
             if event.key == pygame.K_SPACE:
                 shoot = False
-        
-    # Draw Background
-    # ###### THIS WILL BE REPLACED BY A BACKGROUND ########    
-    screen.fill("black")
     
-    # Draw map
-    # ###### THIS WILL BE REPLACED BY A MAP ########
-    platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
-
-    # Define hero's movement
-    # Write a method that will return current (x,y)
-    if move_left:
-        cur_t800_x -= SPEED
-    if move_right:
-        cur_t800_x += SPEED
-    if jump:
-        cur_t800_y -= SPEED
-
-    if falling:
-        cur_t800_y += GRAVITY
-
-    # Draw Hero
-    hero_rect = pygame.draw.rect(screen, "blue", ((cur_t800_x, cur_t800_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
-
-    t800 = Character(400,400)
-    t800.draw()
-
-    # Define collisions
-    if hero_rect.colliderect((0, 540),(600, 30)):
-        falling = False  
-    else:
-        falling = True
-
-    position_text = f"x: {cur_t800_x} | y: {cur_t800_y}"    
-    text = font.render(position_text, True, "white")
-    screen.blit(text, (10,40))
-    
+    t800.update()
     pygame.display.update()
 
     clock.tick(60)
