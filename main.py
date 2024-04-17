@@ -16,7 +16,7 @@ class Character():
         self.y = y
         self.position = (x,y)
         self.falling = True
-        self.jump = False
+        self.jumping = False
         self.move_right = False
         self.move_left = False
         self.shoot = False
@@ -31,19 +31,24 @@ class Character():
 
         if self.move_left:
             delta_x -= SPEED
+            if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+                delta_x += SPEED
         if self.move_right:
             delta_x += SPEED
-        if self.jump:
+            if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+                delta_x -= SPEED
+        if self.jumping:
             delta_y -= SPEED
+            if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+                delta_y += SPEED
 
-
-        if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-            self.falling = False  
-        else:
-            self.falling = True
-        
         if self.falling:
             delta_y += GRAVITY
+
+        if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+            self.falling = False
+        else:
+            self.falling = True
 
         self.x += delta_x
         self.y += delta_y
@@ -72,7 +77,7 @@ while running:
         # User input handling
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                t800.jump = True
+                t800.jumping = True
             if event.key == pygame.K_RIGHT:
                 t800.move_right = True
             if event.key == pygame.K_LEFT:
@@ -83,7 +88,7 @@ while running:
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
-                t800.jump = False
+                t800.jumping = False
             if event.key == pygame.K_RIGHT:
                 t800.move_right = False
             if event.key == pygame.K_LEFT:
