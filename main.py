@@ -16,6 +16,8 @@ class Character():
         self.y = y
         self.position = (x,y)
         self.falling = True
+        self.vertical_speed = 0
+        self.jumped = False
         self.jumping = False
         self.move_right = False
         self.move_left = False
@@ -37,16 +39,21 @@ class Character():
             delta_x += SPEED
             if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
                 delta_x -= SPEED
-        if self.jumping:
-            delta_y -= SPEED
-            if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-                delta_y += SPEED
+        
+        if self.jumped and self.jumping == False:
+            self.jumped = False
+            self.jumping = True
+            self.vertical_speed = -10
 
-        if self.falling:
-            delta_y += GRAVITY
-
+        if self.jumped == False and self.jumping or self.falling:
+            self.vertical_speed += GRAVITY
+        
+        delta_y += self.vertical_speed
+        
         if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
             self.falling = False
+            self.jumping = False
+            self.vertical_speed = 0
         else:
             self.falling = True
 
@@ -66,7 +73,7 @@ while running:
     # Draw map
     platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
 
-    position_text = f"x: {t800.x} | y: {t800.y}"    
+    position_text = f"x: {t800.x} | y: {t800.y} | v_speed: {t800.vertical_speed}"    
     text = font.render(position_text, True, "white")
     screen.blit(text, (10,40))
 
@@ -77,7 +84,7 @@ while running:
         # User input handling
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                t800.jumping = True
+                t800.jumped = True
             if event.key == pygame.K_RIGHT:
                 t800.move_right = True
             if event.key == pygame.K_LEFT:
@@ -88,7 +95,7 @@ while running:
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
-                t800.jumping = False
+                t800.jumped = False
             if event.key == pygame.K_RIGHT:
                 t800.move_right = False
             if event.key == pygame.K_LEFT:
