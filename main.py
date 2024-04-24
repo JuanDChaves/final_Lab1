@@ -1,6 +1,7 @@
 import pygame
 from variables import *
-from maps import *
+# from maps import *
+# from mapstest import *
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -43,7 +44,7 @@ class Character():
         if self.jumped and self.jumping == False:
             self.jumped = False
             self.jumping = True
-            self.vertical_speed = -10
+            self.vertical_speed = -15
 
         if self.jumped == False and self.jumping or self.falling:
             self.vertical_speed += GRAVITY
@@ -63,7 +64,24 @@ class Character():
     def draw(self):
         pygame.draw.rect(screen, "red", ((self.x, self.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
 
+#######################
+# MAP
+#######################
+
+class Map:
+    def __init__(self) -> None:
+        self.level = []
+
+    def map_1(self):
+        message = "Hola"
+        return message
+
 t800 = Character(t800_x, t800_y)
+map = Map()
+
+#######################
+# LOOP
+#######################
 
 while running:
         
@@ -71,7 +89,13 @@ while running:
     screen.fill("black")
     
     # Draw map
+    map.map_1()
     platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
+    # 40 tiles
+    # 30 Rows
+    for y, row in enumerate(range(30)):
+        for x, tile in enumerate(range(40)):
+            pygame.draw.rect(screen, "White", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)),1)
 
     position_text = f"x: {t800.x} | y: {t800.y} | v_speed: {t800.vertical_speed}"    
     text = font.render(position_text, True, "white")
