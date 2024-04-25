@@ -32,6 +32,13 @@ class Character():
         delta_x = 0
         delta_y = 0
 
+        # for y, row in enumerate(range(12)):
+        #   for x, tile in enumerate(range(18)):
+        #         if level_map[y, x] == "1":
+                
+        #         else:
+
+
         if self.move_left:
             delta_x -= SPEED
             if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
@@ -58,6 +65,32 @@ class Character():
         else:
             self.falling = True
 
+        # if self.move_left:
+        #     delta_x -= SPEED
+        #     if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+        #         delta_x += SPEED
+        # if self.move_right:
+        #     delta_x += SPEED
+        #     if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+        #         delta_x -= SPEED
+        
+        # if self.jumped and self.jumping == False:
+        #     self.jumped = False
+        #     self.jumping = True
+        #     self.vertical_speed = -15
+
+        # if self.jumped == False and self.jumping or self.falling:
+        #     self.vertical_speed += GRAVITY
+        
+        # delta_y += self.vertical_speed
+        
+        # if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+        #     self.falling = False
+        #     self.jumping = False
+        #     self.vertical_speed = 0
+        # else:
+        #     self.falling = True
+
         self.x += delta_x
         self.y += delta_y
 
@@ -72,9 +105,28 @@ class Map:
     def __init__(self) -> None:
         self.level = []
 
+    def update(self):
+        pass
+
+    def draw(self):
+        pass
+
     def map_1(self):
-        message = "Hola"
-        return message
+        level = [
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "1", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "1", "1", "1", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "0", "1", "1", "1", "1", "1", "1"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                    ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+                ]
+        return level
 
 t800 = Character(t800_x, t800_y)
 map = Map()
@@ -89,13 +141,16 @@ while running:
     screen.fill("black")
     
     # Draw map
-    map.map_1()
+    level_map = map.map_1()
+    tile = None
+    for y, row in enumerate(range(12)):
+        for x, tile in enumerate(range(18)):
+            if level_map[y][x] == "1":
+                tile = pygame.draw.rect(screen, "Gray", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
+            else:
+                tile = pygame.draw.rect(screen, "Gray", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)),1)
+    
     platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
-    # 40 tiles
-    # 30 Rows
-    for y, row in enumerate(range(30)):
-        for x, tile in enumerate(range(40)):
-            pygame.draw.rect(screen, "White", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)),1)
 
     position_text = f"x: {t800.x} | y: {t800.y} | v_speed: {t800.vertical_speed}"    
     text = font.render(position_text, True, "white")
