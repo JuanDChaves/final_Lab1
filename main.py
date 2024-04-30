@@ -24,6 +24,8 @@ class Character():
         self.move_left = False
         self.shoot = False
 
+        self.rect = pygame.Rect(x, y, CHARACTER_WIDTH, CHARACTER_HEIGHT)
+
     def update(self):
         self.move()
         self.draw()
@@ -31,71 +33,50 @@ class Character():
     def move(self):
         delta_x = 0
         delta_y = 0
+        obstacle_list = []
 
-        # for y, row in enumerate(range(12)):
-        #   for x, tile in enumerate(range(18)):
-        #         if level_map[y, x] == "1":
-                
-        #         else:
-
+        for y, row in enumerate(range(12)):
+          for x, tile in enumerate(range(18)):
+                if level_map[y][x] == "1":
+                    obstacle_tile = pygame.Rect((x * TILE_SIZE, y * TILE_SIZE),(CHARACTER_WIDTH, CHARACTER_HEIGHT))
+                    obstacle_list.append(obstacle_tile)
 
         if self.move_left:
             delta_x -= SPEED
-            if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-                delta_x += SPEED
         if self.move_right:
             delta_x += SPEED
-            if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-                delta_x -= SPEED
         
+        # A jump (Make sure it jumps only once each time)
         if self.jumped and self.jumping == False:
             self.jumped = False
             self.jumping = True
             self.vertical_speed = -15
 
-        if self.jumped == False and self.jumping or self.falling:
-            self.vertical_speed += GRAVITY
+        # The fall
+        self.vertical_speed += GRAVITY
+        # if self.jumped == False and self.jumping or self.falling:
         
         delta_y += self.vertical_speed
-        
-        if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-            self.falling = False
-            self.jumping = False
-            self.vertical_speed = 0
-        else:
-            self.falling = True
 
-        # if self.move_left:
-        #     delta_x -= SPEED
-        #     if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-        #         delta_x += SPEED
-        # if self.move_right:
-        #     delta_x += SPEED
-        #     if self.falling and platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-        #         delta_x -= SPEED
-        
-        # if self.jumped and self.jumping == False:
-        #     self.jumped = False
-        #     self.jumping = True
-        #     self.vertical_speed = -15
+        for obstacle in obstacle_list:
+            if obstacle.colliderect((self.rect.x + delta_x, self.rect.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+                delta_x = 0
+            if obstacle.colliderect((self.rect.x, self.rect.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
+                if self.vertical_speed < 0:
+                    self.vertical_speed = 0
+                    delta_y = obstacle.bottom - self.rect.top
+                elif self.vertical_speed >= 0:
+                    self.falling = False
+                    self.jumping = False
+                    self.vertical_speed = 0
+                    delta_y = obstacle.top - self.rect.bottom
+                  
+        self.rect.x += delta_x
+        self.rect.y += delta_y
 
-        # if self.jumped == False and self.jumping or self.falling:
-        #     self.vertical_speed += GRAVITY
-        
-        # delta_y += self.vertical_speed
-        
-        # if platform_rect.colliderect((self.x + delta_x, self.y + delta_y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
-        #     self.falling = False
-        #     self.jumping = False
-        #     self.vertical_speed = 0
-        # else:
-        #     self.falling = True
-
-        self.x += delta_x
-        self.y += delta_y
 
     def draw(self):
-        pygame.draw.rect(screen, "red", ((self.x, self.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
+        pygame.draw.rect(screen, "red", ((self.rect.x, self.rect.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
 
 #######################
 # MAP
@@ -137,6 +118,7 @@ map = Map()
 
 while running:
         
+    clock.tick(FPS)
     # Draw Background
     screen.fill("black")
     
@@ -149,8 +131,6 @@ while running:
                 tile = pygame.draw.rect(screen, "Gray", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
             else:
                 tile = pygame.draw.rect(screen, "Gray", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)),1)
-    
-    platform_rect = pygame.draw.rect(screen, "blue", ((0, 540),(600, 30)))
 
     position_text = f"x: {t800.x} | y: {t800.y} | v_speed: {t800.vertical_speed}"    
     text = font.render(position_text, True, "white")
@@ -186,6 +166,5 @@ while running:
     t800.update()
     pygame.display.update()
 
-    clock.tick(60)
 
 pygame.quit()
