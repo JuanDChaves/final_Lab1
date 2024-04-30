@@ -23,6 +23,8 @@ class Character():
         self.move_right = False
         self.move_left = False
         self.shoot = False
+        self.scrolled = 0
+        self.scroll = False
 
         self.rect = pygame.Rect(x, y, CHARACTER_WIDTH, CHARACTER_HEIGHT)
 
@@ -35,28 +37,40 @@ class Character():
         delta_y = 0
         obstacle_list = []
 
-        for y, row in enumerate(range(12)):
-          for x, tile in enumerate(range(18)):
-                if level_map[y][x] == "1":
-                    obstacle_tile = pygame.Rect((x * TILE_SIZE, y * TILE_SIZE),(CHARACTER_WIDTH, CHARACTER_HEIGHT))
-                    obstacle_list.append(obstacle_tile)
-
         if self.move_left:
             delta_x -= SPEED
+
+            if self.rect.x + delta_x + self.scrolled <= TILE_SIZE * 3:
+                self.scrolled = 0
+                self.scroll = False
+                if self.rect.x + delta_x <= 0:
+                    delta_x = 0
+
         if self.move_right:
             delta_x += SPEED
+            if (self.rect.x + CHARACTER_WIDTH) + delta_x >= SCREEN_WIDTH:
+                delta_x = 0
+            
+            #Scroll
+            if (self.rect.x + CHARACTER_WIDTH) + delta_x >= SCREEN_WIDTH - (TILE_SIZE * 3):
+                self.scrolled += SPEED
+                self.scroll = True
         
         # A jump (Make sure it jumps only once each time)
         if self.jumped and self.jumping == False:
             self.jumped = False
             self.jumping = True
-            self.vertical_speed = -15
+            self.vertical_speed = -14
 
-        # The fall
         self.vertical_speed += GRAVITY
-        # if self.jumped == False and self.jumping or self.falling:
         
         delta_y += self.vertical_speed
+
+        for y, row in enumerate(range(12)):
+          for x, tile in enumerate(range(18)):
+                if level_map[y][x] == "1":
+                    obstacle_tile = pygame.Rect(((x * TILE_SIZE) - self.scrolled, y * TILE_SIZE),(CHARACTER_WIDTH, CHARACTER_HEIGHT))
+                    obstacle_list.append(obstacle_tile)
 
         for obstacle in obstacle_list:
             if obstacle.colliderect((self.rect.x + delta_x, self.rect.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)):
@@ -70,6 +84,9 @@ class Character():
                     self.jumping = False
                     self.vertical_speed = 0
                     delta_y = obstacle.top - self.rect.bottom
+
+            if self.rect.left + delta_x < 0 or self.rect.right + delta_x > SCREEN_WIDTH:
+                    delta_x = 0
                   
         self.rect.x += delta_x
         self.rect.y += delta_y
@@ -103,7 +120,7 @@ class Map:
                     ["0", "0", "1", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "1", "1", "1", "0"],
                     ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
                     ["0", "0", "0", "0", "0", "0", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
-                    ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "0", "1", "1", "1", "1", "1", "1"],
+                    ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1"],
                     ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
                     ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
                 ]
@@ -124,15 +141,16 @@ while running:
     
     # Draw map
     level_map = map.map_1()
+    t800.update()
     tile = None
     for y, row in enumerate(range(12)):
         for x, tile in enumerate(range(18)):
             if level_map[y][x] == "1":
-                tile = pygame.draw.rect(screen, "Gray", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
+                tile = pygame.draw.rect(screen, "Gray", (((x * TILE_SIZE) - t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
             else:
-                tile = pygame.draw.rect(screen, "Gray", ((x * TILE_SIZE, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)),1)
+                tile = pygame.draw.rect(screen, "Gray", (((x * TILE_SIZE) - t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)),1)
 
-    position_text = f"x: {t800.x} | y: {t800.y} | v_speed: {t800.vertical_speed}"    
+    position_text = f"x: {t800.rect.x} | y: {t800.rect.y} | v_speed: {t800.vertical_speed}"    
     text = font.render(position_text, True, "white")
     screen.blit(text, (10,40))
 
@@ -163,7 +181,6 @@ while running:
             if event.key == pygame.K_SPACE:
                 shoot = False
     
-    t800.update()
     pygame.display.update()
 
 
