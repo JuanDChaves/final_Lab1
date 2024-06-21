@@ -21,7 +21,8 @@ class Character():
         self.jumping = False
         self.move_right = False
         self.move_left = False
-        self.shoot = False
+        self.shooting = False
+        self.ammonition = 10
         self.scroll_limit = TILE_SIZE * 3
         self.scrolled = 0
 
@@ -91,12 +92,26 @@ class Character():
         self.rect.x += delta_x
         self.rect.y += delta_y
 
-
     def draw(self):
         pygame.draw.rect(screen, "red", ((self.rect.x, self.rect.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
 
     def shoot(self):
-        pass
+        # if self.shooting == True:
+        print("shoot")
+        bullet = Bullet(self.rect.x, self.rect.y)
+        bullet_group.add(bullet)
+        self.ammonition -= 1
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((20,20))
+        self.image.fill("white")
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+    def update(self):
+        self.rect.x += 10
 
 #######################
 # MAP
@@ -130,6 +145,8 @@ class Map:
                 ]
         return level
 
+bullet_group = pygame.sprite.Group()
+
 t800 = Character(t800_x, t800_y)
 t1000 = Character(t800_x + 300, t800_y)
 map = Map()
@@ -148,6 +165,9 @@ while running:
     level_map = map.map_1()
     t800.update()
     # t1000.update()
+    bullet_group.update()
+    bullet_group.draw(screen)
+
     tile = None
     for y, row in enumerate(range(12)):
         for x, tile in enumerate(range(48)):
@@ -199,7 +219,8 @@ while running:
                 t800.move_left = True
 
             if event.key == pygame.K_SPACE:
-                shoot = True
+                t800.shooting = True
+                t800.shoot()
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
@@ -210,7 +231,7 @@ while running:
                 t800.move_left = False
 
             if event.key == pygame.K_SPACE:
-                shoot = False
+                t800.shooting = False
     
     pygame.display.update()
 
