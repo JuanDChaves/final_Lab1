@@ -1,0 +1,9 @@
+{
+    "main": 
+        {"nick_input": [190, 120], "audio": [300, 240], "levels": [90, 240], "scores": [90, 340], "about": [300, 340], "quit": [500, 480]},
+    "retry": {"play": [110, 400], "back": [470, 400]},
+    "audio": {"onoff_music": [90, 180],"onoff_sfx": [90, 280], "back": [500, 480]},
+    "levels":{"play_level_1": [120, 120], "play_level_2": [120, 220], "play_level_3": [120, 320], "back": [500, 480]},
+    "scores":{"back": [500, 480]},
+    "about":{"back": [500, 480]}
+}

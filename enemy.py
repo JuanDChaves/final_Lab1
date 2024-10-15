@@ -9,7 +9,11 @@ class Enemy(pygame.sprite.Sprite):
         self.y = y
         self.screen = screen
         self.t800 = t800
+        self.alive = True
         self.groups = groups
+        self.current_frame = 0
+        self.animation_cooldown = 0
+        self.current_sheet_type = "running"
         self.direction = True # True = Right, False = Left
         self.patrol_area = 0
         self.visual_field = 200
@@ -17,12 +21,16 @@ class Enemy(pygame.sprite.Sprite):
         self.cooldown = 40
         self.health = 3
         self.recharging = False
+        self.shot_t1000 = pygame.mixer.Sound("./audio/shot_t1000.ogg")
+        self.sfx_on = True
 
         self.rect = pygame.Rect(x, y, CHARACTER_WIDTH, CHARACTER_HEIGHT)
 
     def update(self, level):
         self.level_map = level
-        self.move()
+        if self.alive:
+            self.move()
+        sheet = ""
 
         bullet_count = 0
         current_rect = pygame.Rect(self.rect.x - self.t800.scrolled ,self.rect.y, CHARACTER_WIDTH, CHARACTER_HEIGHT)
@@ -35,11 +43,17 @@ class Enemy(pygame.sprite.Sprite):
                 self.health -= 1
                 self.t800.score += 5
         
-        if self.health == 0:
+        if self.health == 0 and self.alive:
             self.t800.score += 10
-            self.kill()
-
-        self.draw()
+            self.alive = False
+        
+        if self.idle and self.alive:
+            sheet = "running"
+        elif not self.idle and self.alive:
+            sheet = "idle"
+        elif not self.alive:
+            sheet = "killed"
+        self.draw(sheet)
 
         if self.recharging and self.cooldown <= 40 and self.cooldown > 0:
             self.cooldown -= 1
@@ -81,6 +95,8 @@ class Enemy(pygame.sprite.Sprite):
                 self.idle = False
                 if self.cooldown == 40:
                     current_x = self.rect.x - self.t800.scrolled
+                    if self.sfx_on:
+                        self.shot_t1000.play()
                     self.shoot(current_x)
                     self.recharging = True
             else:
@@ -90,13 +106,51 @@ class Enemy(pygame.sprite.Sprite):
                 self.idle = False
                 if self.cooldown == 40:
                     current_x = self.rect.x - self.t800.scrolled
+                    if self.sfx_on:
+                        self.shot_t1000.play()
                     self.shoot(current_x)
                     self.recharging = True
             else:
                 self.idle = True
-    
-    def draw(self):
-        pygame.draw.rect(self.screen, "blue", ((self.rect.x - self.t800.scrolled, self.rect.y), (CHARACTER_WIDTH, CHARACTER_HEIGHT)))
+
+    def get_image(self, sheet, frame):
+        self.sheet = sheet
+        self.frame = frame
+        image = pygame.Surface((48, 48)).convert_alpha()
+        image.blit(self.sheet, (0, 0), (self.frame * 48, 0, 48, 48))
+        image = pygame.transform.scale_by(image, 1.5)
+        if not self.direction:
+            image = pygame.transform.flip(image, True, False)
+        image.set_colorkey("black")
+
+        return image
+
+    def draw(self, type):
+        if not type == "":
+            self.sheet_type = type
+        if not self.sheet_type == self.current_sheet_type:
+            self.current_sheet_type = self.sheet_type
+            self.current_frame = 0
+        current_sheet = pygame.image.load(f"./images/sprites/t1000_{self.sheet_type}.png").convert_alpha()
+        frames_list = []
+        total_frames = int(current_sheet.get_width() / 48)
+        for i in range(int(total_frames)):
+            image = self.get_image(current_sheet, i)
+            frames_list.append(image)
+        
+        self.animation_cooldown += 1
+
+        if self.animation_cooldown == 10:
+            self.current_frame += 1
+            if self.current_frame > len(frames_list) - 1:
+                if self.sheet_type == "killed":
+                    self.current_frame = 7
+                else:
+                    self.current_frame = 0
+            self.animation_cooldown = 0
+        
+        self.screen.blit(frames_list[self.current_frame], (self.rect.x - self.t800.scrolled - 20, self.rect.y))
+        frames_list.clear()
 
     def shoot(self, current_x):
         bullet = Bullet(current_x, self.rect.y, self.direction)

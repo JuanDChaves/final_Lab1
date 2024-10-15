@@ -9,6 +9,7 @@ class Map():
         self.t800 = t800
         self.level = level
         self.level_map = []
+        self.asset_images = []
         self.item_group = groups[0]
         self.transition_item_group = groups[1]
         with open("./jsonConfig/maps.json") as file:
@@ -25,16 +26,16 @@ class Map():
 
         for y, row in enumerate(range(MAP_HEIGHT)):
             for x, tile in enumerate(range(MAP_LENGTH)):
-                if self.level_map[y][x] == "2":
+                if self.level_map[y][x] == "88":
                     lava_item = Transition_Item((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE, "lava")
                     self.transition_item_group.add(lava_item)
-                elif self.level_map[y][x] == "3":
+                elif self.level_map[y][x] == "90":
                     health_item = Item((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE, "health", (y, x))
                     self.item_group.add(health_item)
-                elif self.level_map[y][x] == "4":
+                elif self.level_map[y][x] == "82":
                     ammo_item = Item((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE, "ammo", (y, x))
                     self.item_group.add(ammo_item)
-                elif self.level_map[y][x] == "8":
+                elif self.level_map[y][x] == "89":
                     exit_item = Transition_Item((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE, "exit")
                     self.transition_item_group.add(exit_item)
         return self.level_map
@@ -61,38 +62,61 @@ class Map():
                     self.t800.score += 10
                     self.t800.won = True
 
+    def load_assets(self):
+        for i in range(1, 95):
+            if i <= 87:
+                asset_image = pygame.image.load(f"./images/tiles/{i}.png").convert_alpha()
+                asset_image = pygame.transform.scale_by(asset_image, 1.6)
+                self.asset_images.append(asset_image)
+            elif i == 88 or i == 89:
+                asset_image = pygame.image.load(f"./images/tiles/{i}.png").convert_alpha()
+                asset_image = pygame.transform.scale_by(asset_image, 1.1)
+                self.asset_images.append(asset_image)
+            elif i == 90:
+                asset_image = pygame.image.load(f"./images/tiles/{i}.png").convert_alpha()
+                asset_image = pygame.transform.scale_by(asset_image, 2)
+                self.asset_images.append(asset_image)
+            else:
+                asset_image = pygame.image.load(f"./images/tiles/{i}.png").convert_alpha()
+                self.asset_images.append(asset_image)
+
+        # 1-81, box, bench, fences, small * 1.6
+        # 82 box
+        # 83 bench
+        # 84 - 86 fences
+        # 87 small
+        # 88 lava
+        # 89 flag
+        # 90 barrel
+        # 91 big
+        # 92 cryo
+        # 93 hang
+        # 94 server
+        # lava, flag * 1.1
+        # barrel * 2
+        # big, cryo, hang, server 
+        # Flag, server, small y - 20
+
     def draw(self):
+        self.load_assets()
         for y, row in enumerate(range(MAP_HEIGHT)):
             for x, tile in enumerate(range(MAP_LENGTH)):
-                # 1 Block = saddlebrown
-                # 2 lava = organgered
-                # 3 Health = crimson
-                # 4 Ammo = silver
-                # 5 Deco1 = paleturquoise
-                # 6 Deco2 = papayawhip
-                # 7 Deco3 = palegreen
-                # 8 Exit = gold
-                # T800 = blue
-                # T1000 = black
-                if self.level_map[y][x] == "1":
-                    pygame.draw.rect(self.screen, "saddlebrown", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "2":
-                    pygame.draw.rect(self.screen, "orangered", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "3":
-                    pygame.draw.rect(self.screen, "crimson", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "4":
-                    pygame.draw.rect(self.screen, "silver", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "5":
-                    pygame.draw.rect(self.screen, "paleturquoise", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "6":
-                    pygame.draw.rect(self.screen, "papayawhip", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "7":
-                    pygame.draw.rect(self.screen, "palegreen", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "8":
-                    pygame.draw.rect(self.screen, "gold", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
-                elif self.level_map[y][x] == "9":
-                    pygame.draw.rect(self.screen, "orangered", (((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE), (TILE_SIZE, TILE_SIZE)))
+                tile_id = int(self.level_map[y][x])
+                if tile_id == 0:
+                    pass
+                elif tile_id == 87 or tile_id == 89 or tile_id == 94: 
+                    self.screen.blit(self.asset_images[tile_id - 1], ((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE - 20))
+                else:
+                    self.screen.blit(self.asset_images[tile_id - 1], ((x * TILE_SIZE) - self.t800.scrolled, y * TILE_SIZE))
 
     def enemies_1(self):
         coord_enemies = [(8,19), (8,40)]
+        return coord_enemies
+
+    def enemies_2(self):
+        coord_enemies = [(8,23), (8,40)]
+        return coord_enemies
+
+    def enemies_3(self):
+        coord_enemies = [(8,19), (8, 22), (8, 39), (8,43)]
         return coord_enemies

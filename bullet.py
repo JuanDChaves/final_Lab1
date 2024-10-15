@@ -4,10 +4,9 @@ from variables import *
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((20,20))
-        self.image.fill("white")
+        self.image = pygame.image.load("./images/sprites/bullet.png")
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.center = (x + 10, y + 40)
         self.direction = direction
 
     def update(self):

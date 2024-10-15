@@ -8,40 +8,20 @@ class Menu():
         self.screen = screen
         self.btn_id = "main"
         self.clicked = False
+        with open("./jsonConfig/buttons.json") as file:
+            self.buttons = json.load(file)
 
-    # DESDE AQUI SE ABRE EL ARCHIVO CON LA INFO DE LOS BTONES DEL MENU
-        self.main_menu_coords = {"play": (50, 50), "settings": (400, 50), "levels": (50, 200), "scores": (400, 200), "about": (50, 400), "quit": (400, 400)}
-        self.retry_menu_coords = {"play": (50, 50), "main": (400, 50)}
-        self.settings_menu_coords = {"main": (50, 50)} 
-        self.levels_menu_coords = {"main": (50, 50)}
-        self.scores_menu_coords = {"main": (50, 50)}
-        self.about_menu_coords = {"main": (50, 50)}
-    
-    def show(self):
-        if self.btn_id == "main":
-            for key, value in self.main_menu_coords.items():
-                self.btn_manager(key, value)
-        elif self.btn_id == "retry":
-            for key, value in self.retry_menu_coords.items():
-                self.btn_manager(key, value)
-        elif self.btn_id == "settings":
-            for key, value in self.settings_menu_coords.items():
-                self.btn_manager(key, value)
-        elif self.btn_id == "levels":
-            for key, value in self.levels_menu_coords.items():
-                self.btn_manager(key, value)
-        elif self.btn_id == "scores":
-            for key, value in self.scores_menu_coords.items():
-                self.btn_manager(key, value)
-        elif self.btn_id == "about":
-            for key, value in self.about_menu_coords.items():
-                self.btn_manager(key, value)
+    def show(self, btn_id):
+        self.btn_id = btn_id
+        for key, value in self.buttons[self.btn_id].items():
+            self.btn_manager(key, value)
 
     def btn_manager(self, key, value):
-        button = Button(value[0], value[1])
+        button = Button(key, value[0], value[1])
         button.draw(self.screen)
+        button_size = button.get_size()
         self.pos = pygame.mouse.get_pos()
-        current_rect = pygame.Rect((value[0], value[1]),(BTN_WIDTH, BTN_HEIGHT))
+        current_rect = pygame.Rect((value[0] + 10, value[1] + 10), (button_size[0] - 20, button_size[1] - 20))
         if pygame.Rect.collidepoint(current_rect, self.pos):
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
